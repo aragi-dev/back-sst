@@ -1,4 +1,4 @@
-# shopia-back-sst
+# back-sst
 
 To install dependencies:
 

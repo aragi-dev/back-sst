@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model product {
+  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  code           String        @unique @db.VarChar(50)
+  name           String        @db.VarChar(255)
+  description    String?
+  purchase_price Decimal       @db.Decimal(10, 2)
+  price          Decimal       @db.Decimal(10, 2)
+  stock          Int
+  status         Boolean       @default(true)
+  created_at     DateTime      @default(now()) @db.Timestamp(6)
+  updated_at     DateTime      @default(now()) @db.Timestamp(6)
+  sale_detail    sale_detail[]
+}
+
+model sale {
+  id          String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id     String        @db.Uuid
+  total       Decimal       @db.Decimal(10, 2)
+  status      Boolean       @default(true)
+  created_at  DateTime      @default(now()) @db.Timestamp(6)
+  updated_at  DateTime      @default(now()) @db.Timestamp(6)
+  user        user          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sale_detail sale_detail[]
+
+  @@index([user_id], map: "idx_sale_user")
+}
+
+model sale_detail {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  sale_id    String   @db.Uuid
+  product_id String   @db.Uuid
+  quantity   Int
+  unit_price Decimal  @db.Decimal(10, 2)
+  status     Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+  product    product  @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sale       sale     @relation(fields: [sale_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([product_id], map: "idx_sale_detail_product")
+  @@index([sale_id], map: "idx_sale_detail_sale")
+}
+
+model user {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String   @db.VarChar(100)
+  password_hash String
+  role          String   @db.VarChar(20)
+  status        Boolean  @default(true)
+  created_at    DateTime @default(now()) @db.Timestamp(6)
+  updated_at    DateTime @default(now()) @db.Timestamp(6)
+  email         String   @unique(map: "UQ_e12875dfb3b1d92d7d7c5377e22") @db.VarChar(255)
+  sale          sale[]
+}
