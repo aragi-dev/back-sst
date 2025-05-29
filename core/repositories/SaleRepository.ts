@@ -1,6 +1,6 @@
-import { prisma } from "../../utils/prisma";
-import type { Sale } from "../entities/Sale";
-import type { ISaleRepository } from "../IRepositories/ISaleRepository";
+import { prisma } from "@utils/prisma";
+import type { Sale } from "@core/entities/Sale";
+import type { ISaleRepository } from "@core/IRepositories/ISaleRepository";
 
 export class SaleRepository implements ISaleRepository {
   async create(sale: Sale): Promise<Sale> {

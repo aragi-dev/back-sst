@@ -1,7 +1,18 @@
-// biome-ignore lint/suspicious/noExplicitAny: false
-export default function response({ statusCode, message, data, errors }: { statusCode: number; message: string; data?: any; errors?: any }) {
+type ApiResponse<T = unknown, U = unknown> = {
+  statusCode: number;
+  message: string;
+  data?: T;
+  error?: U;
+};
+
+export default function response<T = unknown, U = unknown>({
+  statusCode,
+  message,
+  data,
+  error,
+}: ApiResponse<T, U>) {
   return {
     statusCode,
-    body: JSON.stringify({ message, data, errors }),
+    body: JSON.stringify({ message, data, error }),
   };
 }

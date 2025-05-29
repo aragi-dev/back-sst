@@ -1,4 +1,4 @@
-import type { SaleDetail } from "../entities/SaleDetail";
+import type { SaleDetail } from "@core/entities/SaleDetail";
 
 export interface ISaleDetailRepository {
   create(saleDetail: SaleDetail): Promise<SaleDetail>;

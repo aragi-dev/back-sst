@@ -1,6 +1,6 @@
-import { prisma } from "../../utils/prisma";
-import type { User } from "../entities/User";
-import type { IUserRepository } from "../IRepositories/IUserRepository";
+import { prisma } from "@utils/prisma";
+import type { User } from "@core/entities/User";
+import type { IUserRepository } from "@core/IRepositories/IUserRepository";
 
 export class UserRepository implements IUserRepository {
   async create(user: User): Promise<User> {

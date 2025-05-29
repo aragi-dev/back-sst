@@ -41,5 +41,11 @@ export default $config({
 			timeout: "10 seconds",
 			memory: "1024 MB",
 		});
+		api.route("POST /product", {
+			name: "createProduct",
+			handler: "api/createProduct.handler",
+			timeout: "10 seconds",
+			memory: "1024 MB",
+		});
 	},
 });

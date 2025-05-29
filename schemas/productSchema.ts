@@ -1,0 +1,14 @@
+import { z } from "zod";
+
+export const createProductSchema = z.object({
+  code: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  price: z.number().positive(),
+  cost: z.number().positive(),
+  stock: z.number().int().nonnegative(),
+});
+
+export const getOneProductSchema = z.object({
+  code: z.string(),
+});

@@ -25,7 +25,25 @@
     "noPropertyAccessFromIndexSignature": false,
     // tsyringe
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@services/*": [
+        "services/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@core/*": [
+        "core/*"
+      ],
+      "@schemas/*": [
+        "schemas/*"
+      ],
+      "@interfaces/*": [
+        "interfaces/*"
+      ]
+    }
   },
   "include": [
     "api",
