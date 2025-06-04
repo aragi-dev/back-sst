@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import type { APIGatewayProxyHandler } from "aws-lambda";
 import { container } from "tsyringe";
-import ProductService from "@services/ProductService";
+import { ProductService } from "@services/ProductService";
 import "@utils/injector";
 
 

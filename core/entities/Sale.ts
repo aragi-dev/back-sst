@@ -1,10 +1,17 @@
-export class Sale {
-  constructor(
-    public id: string,
-    public user_id: string,
-    public total: number,
-    public status: boolean,
-    public created_at: Date,
-    public updated_at: Date,
-  ) {}
+import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
+import BaseEntity from "./base/BaseEntity";
+import { User } from "./User";
+import type { ZodUUID } from "zod/v4";
+
+@Entity("sale")
+export class Sale extends BaseEntity {
+  @Column({ name: "user_id", type: "uuid", nullable: false })
+  user_id!: ZodUUID;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: "user_id" })
+  user!: User;
+
+  @Column({ name: "total", type: "numeric", precision: 10, scale: 2, nullable: false })
+  total!: number;
 }

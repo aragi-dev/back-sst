@@ -3,10 +3,11 @@ import type { APIGatewayProxyHandler } from "aws-lambda";
 import { container } from "tsyringe";
 import { ProductService } from "@services/ProductService";
 import "@utils/injector";
-import { createProductSchema } from "@schemas/productSchema";
+import { createUserSchema } from "@schemas/userSchema";
 import Logger from "@utils/loggers/logger";
 import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
+import { UserService } from "@services/UserService";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   let parsedBody;
@@ -20,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       error: messages.error.INVALID_INPUT,
     });
   }
-  const validate = createProductSchema.safeParse(parsedBody);
+  const validate = createUserSchema.safeParse(parsedBody);
   if (!validate.success) {
     Logger.error(messages.error.VALIDATION_ERROR, validate.error);
     return response({
@@ -30,7 +31,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     });
   }
   try {
-    const service = container.resolve(ProductService);
+    const service = container.resolve(UserService);
     const result = await service.create(validate.data);
     return response(result);
   } catch (error) {

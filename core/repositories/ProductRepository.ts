@@ -1,25 +1,22 @@
-import { prisma } from "@utils/prisma";
-import type { Product } from "@core/entities/Product";
+import { connectDB } from "@utils/typeorm";
+import { Product } from "@core/entities/Product";
 import type { IProductRepository } from "@core/IRepositories/IProductRepository";
 
 export class ProductRepository implements IProductRepository {
-  async create(saleDetail: Product): Promise<Product> {
-    return prisma.product.create({ data: saleDetail });
-  }
-
-  async findById(id: string): Promise<Product | null> {
-    return prisma.product.findUnique({ where: { id } });
-  }
-
   async findAll(): Promise<Product[]> {
-    return prisma.product.findMany();
+    const db = await connectDB();
+    const repo = db.getRepository(Product);
+    return repo.find();
   }
 
-  async update(saleDetail: Product): Promise<Product> {
-    return prisma.product.update({ where: { id: saleDetail.id }, data: saleDetail });
+  async create(product: Partial<Product>): Promise<Product> {
+    const db = await connectDB();
+    const repo = db.getRepository(Product);
+    return repo.save(product);
   }
-
-  async delete(id: string): Promise<void> {
-    await prisma.product.delete({ where: { id } });
+  async findByParams(params: Partial<Product>): Promise<Product | null> {
+    const db = await connectDB();
+    const repo = db.getRepository(Product);
+    return repo.findOneBy(params);
   }
 }

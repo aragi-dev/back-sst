@@ -1,14 +1,24 @@
-export class Product {
-  constructor(
-    public id: string,
-    public code: string,
-    public name: string,
-    public description: string | null,
-    public purchase_price: number,
-    public price: number,
-    public stock: number,
-    public status: boolean,
-    public created_at: Date,
-    public updated_at: Date,
-  ) {}
+import { Entity, Column } from "typeorm";
+import BaseEntity from "./base/BaseEntity";
+import numericTransformer from "@utils/adapters/numericTransformer";
+
+@Entity("product")
+export class Product extends BaseEntity {
+  @Column({ name: "code", type: "varchar", length: 50, unique: true, nullable: false })
+  code!: string;
+
+  @Column({ name: "name", type: "varchar", length: 255, nullable: false })
+  name!: string;
+
+  @Column({ name: "description", type: "text", nullable: true })
+  description?: string;
+
+  @Column({ name: "cost", type: "numeric", precision: 10, scale: 2, nullable: false, transformer: numericTransformer })
+  cost!: number;
+
+  @Column({ name: "price", type: "numeric", precision: 10, scale: 2, nullable: false, transformer: numericTransformer })
+  price!: number;
+
+  @Column({ name: "stock", type: "int", nullable: false })
+  stock!: number;
 }

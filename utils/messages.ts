@@ -2,6 +2,10 @@ export const messages = {
   error: {
     VALIDATION_ERROR: "Validation error occurred",
     SERVICE: "Service error occurred",
+    NOT_FOUND: "Resource not found",
+    ALREADY_EXISTS: "Resource already exists",
+    NOT_EXISTS: "Resource does not exist",
+    INVALID_INPUT: "Invalid input provided",
   },
   success: {
     CREATED: "Created successfully",

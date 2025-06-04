@@ -1,50 +1,39 @@
 import { inject, injectable } from "tsyringe";
 import type { IProductRepository } from "@core/IRepositories/IProductRepository";
 import type { Product } from "@core/entities/Product";
-import type { createProductDto } from "@interfaces/ProductDto"
+import type { createProductDto } from "@interfaces/ProductDto";
+import { messages } from "@utils/messages";
+import type { UseCase } from "@utils/adapters/UseCase";
 
 @injectable()
-export default class ProductService {
+export class ProductService {
   constructor(
     @inject("ProductRepository")
     private readonly productRepository: IProductRepository
-  ) {}
+  ) { }
 
   async getAll(): Promise<Product[]> {
     const products = await this.productRepository.findAll();
     return products;
   }
 
-  async getOne(id: string): Promise<Product> {
-    const product = await this.productRepository.findById(id);
-    if (!product) {
-      throw new Error("Product not found");
-    }
-    return product;
-  }
-
-  async createOne(productData: createProductDto): Promise<Product> {
-    const product = await this.productRepository.create(productData);
-    return product;
-  }
-
-  async updateOne(id: string, productData: Partial<Product>): Promise<Product> {
-    const existingProduct = await this.productRepository.findById(id);
-    if (!existingProduct) {
-      throw new Error("Product not found");
-    }
-    const updatedProduct = await this.productRepository.update({
-      ...existingProduct,
-      ...productData,
+  async create(product: createProductDto): Promise<UseCase<Product>> {
+    const existingProduct = await this.productRepository.findByParams({
+      code: product.code,
+      name: product.name
     });
-    return updatedProduct;
-  }
-
-  async deleteOne(id: string) {
-    const existingProduct = await this.productRepository.findById(id);
-    if (!existingProduct) {
-      throw new Error("Product not found");
+    if (existingProduct) {
+      return {
+        statusCode: messages.statusCode.CONFLICT,
+        message: messages.error.ALREADY_EXISTS,
+        data: existingProduct
+      };
     }
-    await this.productRepository.delete(id);
+    const newProduct = await this.productRepository.create(product);
+    return {
+      statusCode: messages.statusCode.SUCCESS,
+      message: messages.success.CREATED,
+      data: newProduct
+    };;
   }
 }

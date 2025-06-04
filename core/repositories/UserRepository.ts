@@ -1,25 +1,22 @@
-import { prisma } from "@utils/prisma";
-import type { User } from "@core/entities/User";
+import { connectDB } from "@utils/typeorm";
+import { User } from "@core/entities/User";
 import type { IUserRepository } from "@core/IRepositories/IUserRepository";
 
 export class UserRepository implements IUserRepository {
-  async create(user: User): Promise<User> {
-    return prisma.user.create({ data: user });
-  }
-
-  async findById(id: string): Promise<User | null> {
-    return prisma.user.findUnique({ where: { id } });
-  }
-
   async findAll(): Promise<User[]> {
-    return prisma.user.findMany();
+    const db = await connectDB();
+    const repo = db.getRepository(User);
+    return repo.find();
   }
 
-  async update(user: User): Promise<User> {
-    return prisma.user.update({ where: { id: user.id }, data: user });
+  async create(user: Partial<User>): Promise<User> {
+    const db = await connectDB();
+    const repo = db.getRepository(User);
+    return repo.save(user);
   }
-
-  async delete(id: string): Promise<void> {
-    await prisma.user.delete({ where: { id } });
+  async findByParams(params: Partial<User>): Promise<User | null> {
+    const db = await connectDB();
+    const repo = db.getRepository(User);
+    return repo.findOneBy(params);
   }
 }
