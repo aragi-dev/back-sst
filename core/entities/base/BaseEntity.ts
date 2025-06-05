@@ -1,9 +1,8 @@
 import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Column } from "typeorm";
-import type { ZodUUID } from "zod/v4";
 
 export default abstract class BaseEntity {
   @PrimaryGeneratedColumn("uuid")
-  id!: ZodUUID;
+  id!: string;
 
   @Column({ type: "boolean", default: true })
   status!: boolean;

@@ -9,17 +9,7 @@ import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  let parsedBody;
-  try {
-    parsedBody = JSON.parse(event.body || '{}');
-  } catch (err) {
-    Logger.error(messages.error.VALIDATION_ERROR, err);
-    return response({
-      statusCode: messages.statusCode.BAD_REQUEST,
-      message: messages.error.VALIDATION_ERROR,
-      error: messages.error.INVALID_INPUT,
-    });
-  }
+  let parsedBody = JSON.parse(event.body || "{}");
   const validate = createProductSchema.safeParse(parsedBody);
   if (!validate.success) {
     Logger.error(messages.error.VALIDATION_ERROR, validate.error);

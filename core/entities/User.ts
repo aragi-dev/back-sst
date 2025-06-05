@@ -1,5 +1,6 @@
 import { Entity, Column, Unique } from "typeorm";
 import BaseEntity from "./base/BaseEntity";
+import type { Role } from "@utils/enums/RoleEnum";
 
 @Entity("user")
 @Unique(["email"])
@@ -11,7 +12,7 @@ export class User extends BaseEntity {
   password_hash!: string;
 
   @Column({ name: "role", type: "varchar", length: 20, nullable: false })
-  role!: "admin" | "seller";
+  role!: Role;
 
   @Column({ name: "email", type: "varchar", length: 255, unique: true, nullable: false })
   email!: string;

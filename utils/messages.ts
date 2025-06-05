@@ -6,9 +6,12 @@ export const messages = {
     ALREADY_EXISTS: "Resource already exists",
     NOT_EXISTS: "Resource does not exist",
     INVALID_INPUT: "Invalid input provided",
+    INVALID_PARAMETERS: "Invalid parameters provided",
+    NOT_AVAILABLE: "Resource not available",
   },
   success: {
     CREATED: "Created successfully",
+    SUCCESS: "Operation successful",
   },
   statusCode: {
     SUCCESS: 200,

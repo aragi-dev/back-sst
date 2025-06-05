@@ -17,27 +17,30 @@ export default $config({
 				route: {
 					handler: (args, _opts) => {
 						args.memory ??= "2048 MB";
+						args.timeout ??= "10 seconds";
 					},
 				},
 			},
 		});
-		
+
 		api.route("GET /product", {
 			name: "getProduct",
 			handler: "api/getProduct.handler",
-			timeout: "10 seconds",
 		});
 
 		api.route("POST /product", {
 			name: "createProduct",
 			handler: "api/createProduct.handler",
-			timeout: "10 seconds",
 		});
-		
+
 		api.route("POST /user", {
 			name: "createUser",
 			handler: "api/createUser.handler",
-			timeout: "10 seconds",
+		});
+
+		api.route("POST /login", {
+			name: "loginUser",
+			handler: "api/loginUser.handler",
 		});
 	},
 });

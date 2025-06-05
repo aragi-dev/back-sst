@@ -1,12 +1,11 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import BaseEntity from "./base/BaseEntity";
 import { User } from "./User";
-import type { ZodUUID } from "zod/v4";
 
 @Entity("sale")
 export class Sale extends BaseEntity {
   @Column({ name: "user_id", type: "uuid", nullable: false })
-  user_id!: ZodUUID;
+  user_id!: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "user_id" })
