@@ -1,38 +1,75 @@
 import { connectDB } from "@utils/typeorm";
 import { SaleDetail } from "@core/entities/SaleDetail";
+import type { EntityManager } from "typeorm";
+import type { ISaleDetailRepository } from "@core/IRepositories/ISaleDetailRepository";
+import { LogRepository } from "@utils/loggers/repositoryDecorator";
 
-export class SaleDetailRepository {
-  async findAll(): Promise<SaleDetail[]> {
-    const db = await connectDB();
-    const repo = db.getRepository(SaleDetail);
+export class SaleDetailRepository implements ISaleDetailRepository {
+  @LogRepository
+  async findAll(manager?: EntityManager): Promise<SaleDetail[]> {
+    const db = manager || (await connectDB());
+    const repo = manager
+      ? manager.getRepository(SaleDetail)
+      : db.getRepository(SaleDetail);
     return repo.find();
   }
 
-  async findById(id: string): Promise<SaleDetail | null> {
-    const db = await connectDB();
-    const repo = db.getRepository(SaleDetail);
-    return repo.findOneBy({ id } as any);
+  @LogRepository
+  async create(
+    data: Partial<SaleDetail>,
+    manager?: EntityManager
+  ): Promise<SaleDetail> {
+    const db = manager || (await connectDB());
+    const repo = manager
+      ? manager.getRepository(SaleDetail)
+      : db.getRepository(SaleDetail);
+    return repo.save(data);
   }
 
-  async create(saleDetail: Partial<SaleDetail>): Promise<SaleDetail> {
-    const db = await connectDB();
-    const repo = db.getRepository(SaleDetail);
-    return repo.save(saleDetail);
+  @LogRepository
+  async findByParams(
+    data: Partial<SaleDetail>,
+    manager?: EntityManager
+  ): Promise<SaleDetail | null> {
+    const db = manager || (await connectDB());
+    const repo = manager
+      ? manager.getRepository(SaleDetail)
+      : db.getRepository(SaleDetail);
+    return repo.findOneBy(data);
   }
 
+  @LogRepository
+  async findById(
+    id: string,
+    manager?: EntityManager
+  ): Promise<SaleDetail | null> {
+    const db = manager || (await connectDB());
+    const repo = manager
+      ? manager.getRepository(SaleDetail)
+      : db.getRepository(SaleDetail);
+    return repo.findOneBy({ id });
+  }
+
+  @LogRepository
   async update(
     id: string,
-    data: Partial<SaleDetail>
+    data: Partial<SaleDetail>,
+    manager?: EntityManager
   ): Promise<SaleDetail | null> {
-    const db = await connectDB();
-    const repo = db.getRepository(SaleDetail);
+    const db = manager || (await connectDB());
+    const repo = manager
+      ? manager.getRepository(SaleDetail)
+      : db.getRepository(SaleDetail);
     await repo.update(id, data);
-    return repo.findOneBy({ id } as any);
+    return repo.findOneBy({ id });
   }
 
-  async delete(id: string): Promise<boolean> {
-    const db = await connectDB();
-    const repo = db.getRepository(SaleDetail);
+  @LogRepository
+  async delete(id: string, manager?: EntityManager): Promise<boolean> {
+    const db = manager || (await connectDB());
+    const repo = manager
+      ? manager.getRepository(SaleDetail)
+      : db.getRepository(SaleDetail);
     const result = await repo.delete(id);
     return result.affected !== 0;
   }
