@@ -12,41 +12,70 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ExpireTimeEnum } from "@utils/enums/ExpireTimeEnum";
 const JWT_SECRET = process.env.JWT_SECRET || "secret";
+import { AppDataSource } from "@utils/typeorm";
+import { LogUseCase } from "@utils/loggers/useCaseDecorator";
+
 @injectable()
 export class UserService {
   constructor(
     @inject("UserRepository")
     private readonly userRepository: IUserRepository
-  ) { }
+  ) {}
 
+  @LogUseCase
   async create(data: ICreateUserDto): Promise<UseCase<User>> {
-    const existingUser = await this.userRepository.findByParams({
-      email: data.email,
-      name: data.name,
-    });
-    if (existingUser) {
-      return {
-        statusCode: messages.statusCode.CONFLICT,
-        message: messages.error.ALREADY_EXISTS,
-        data: existingUser,
-      };
-    }
+    const dataBase = await AppDataSource.createQueryRunner();
+    try {
+      await dataBase.connect();
+      await dataBase.startTransaction();
 
-    const passwordHash = await bcrypt.hash(data.password, 10);
-    const newUser = await this.userRepository.create({
-      name: data.name,
-      email: data.email,
-      password_hash: passwordHash,
-      role: data.role,
-      status: true,
-    });
-    return {
-      statusCode: messages.statusCode.SUCCESS,
-      message: messages.success.CREATED,
-      data: newUser,
-    };
+      const existingUser = await this.userRepository.findByParams(
+        {
+          email: data.email,
+          name: data.name,
+        },
+        dataBase.manager
+      );
+      if (existingUser) {
+        await dataBase.rollbackTransaction();
+        return {
+          statusCode: messages.statusCode.CONFLICT,
+          message: messages.error.ALREADY_EXISTS,
+          data: undefined as unknown as User,
+        };
+      }
+
+      const passwordHash = await bcrypt.hash(data.password, 10);
+      const newUser = await this.userRepository.create(
+        {
+          name: data.name,
+          email: data.email,
+          password_hash: passwordHash,
+          role: data.role,
+          status: true,
+        },
+        dataBase.manager
+      );
+
+      await dataBase.commitTransaction();
+      return {
+        statusCode: messages.statusCode.SUCCESS,
+        message: messages.success.CREATED,
+        data: newUser,
+      };
+    } catch (error) {
+      await dataBase.rollbackTransaction();
+      return {
+        statusCode: messages.statusCode.INTERNAL_SERVER_ERROR,
+        message: messages.error.SERVICE,
+        data: undefined as unknown as User,
+      };
+    } finally {
+      await dataBase.release();
+    }
   }
 
+  @LogUseCase
   async login(data: ILoginUserDto): Promise<UseCase<ILoginResponse>> {
     const user = await this.userRepository.findByParams({
       email: data.email,
@@ -59,8 +88,6 @@ export class UserService {
       };
     }
     const match = await bcrypt.compare(data.password, user.password_hash);
-    
-    console.log("match", data.password, user.password_hash, match);
 
     if (!match) {
       return {
