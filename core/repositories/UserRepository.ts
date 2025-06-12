@@ -1,42 +1,57 @@
 import { connectDB } from "@utils/typeorm";
 import { User } from "@core/entities/User";
 import type { IUserRepository } from "@core/IRepositories/IUserRepository";
+import type { EntityManager } from "typeorm";
+import { LogRepository } from "@utils/loggers/repositoryDecorator";
 
 export class UserRepository implements IUserRepository {
-  async findAll(): Promise<User[]> {
-    const db = await connectDB();
-    const repo = db.getRepository(User);
+  @LogRepository
+  async findAll(manager?: EntityManager): Promise<User[]> {
+    const db = manager || (await connectDB());
+    const repo = manager ? manager.getRepository(User) : db.getRepository(User);
     return repo.find();
   }
 
-  async create(user: Partial<User>): Promise<User> {
-    const db = await connectDB();
-    const repo = db.getRepository(User);
-    return repo.save(user);
+  @LogRepository
+  async create(data: Partial<User>, manager?: EntityManager): Promise<User> {
+    const db = manager || (await connectDB());
+    const repo = manager ? manager.getRepository(User) : db.getRepository(User);
+    return repo.save(data);
   }
 
-  async findByParams(params: Partial<User>): Promise<User | null> {
-    const db = await connectDB();
-    const repo = db.getRepository(User);
+  @LogRepository
+  async findByParams(
+    params: Partial<User>,
+    manager?: EntityManager
+  ): Promise<User | null> {
+    const db = manager || (await connectDB());
+    const repo = manager ? manager.getRepository(User) : db.getRepository(User);
     return repo.findOneBy(params);
   }
 
-  async findById(id: string): Promise<User | null> {
-    const db = await connectDB();
-    const repo = db.getRepository(User);
-    return repo.findOneBy({ id } as any);
+  @LogRepository
+  async findById(id: string, manager?: EntityManager): Promise<User | null> {
+    const db = manager || (await connectDB());
+    const repo = manager ? manager.getRepository(User) : db.getRepository(User);
+    return repo.findOneBy({ id });
   }
 
-  async update(id: string, data: Partial<User>): Promise<User | null> {
-    const db = await connectDB();
-    const repo = db.getRepository(User);
+  @LogRepository
+  async update(
+    id: string,
+    data: Partial<User>,
+    manager?: EntityManager
+  ): Promise<User | null> {
+    const db = manager || (await connectDB());
+    const repo = manager ? manager.getRepository(User) : db.getRepository(User);
     await repo.update(id, data);
-    return repo.findOneBy({ id } as any);
+    return repo.findOneBy({ id });
   }
 
-  async delete(id: string): Promise<boolean> {
-    const db = await connectDB();
-    const repo = db.getRepository(User);
+  @LogRepository
+  async delete(id: string, manager?: EntityManager): Promise<boolean> {
+    const db = manager || (await connectDB());
+    const repo = manager ? manager.getRepository(User) : db.getRepository(User);
     const result = await repo.delete(id);
     return result.affected !== 0;
   }
