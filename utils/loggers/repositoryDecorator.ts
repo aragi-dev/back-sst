@@ -1,6 +1,6 @@
 import Logger from "./logger";
 
-function LogRepository(target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
+export function LogRepository(target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
   descriptor.value = async function (...args: unknown[]) {
     Logger.info(`🚍 [REPO] Entering: ${propertyKey}`, ...args);
@@ -14,5 +14,3 @@ function LogRepository(target: unknown, propertyKey: string, descriptor: Propert
     }
   };
 }
-
-export default LogRepository;
