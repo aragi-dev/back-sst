@@ -23,6 +23,10 @@ export default $config({
 			},
 		});
 
+		 const email = new sst.aws.Email("MyEmail", {
+           sender: "tucorreo@gmail.com",
+         });
+
 		api.route("GET /product", {
 			name: "getProduct",
 			handler: "api/getProduct.handler",
@@ -36,6 +40,7 @@ export default $config({
 		api.route("POST /user", {
 			name: "createUser",
 			handler: "api/createUser.handler",
+			link: [email],
 		});
 
 		api.route("POST /login", {
