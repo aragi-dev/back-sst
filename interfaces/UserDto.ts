@@ -8,15 +8,17 @@ export interface ICreateUserDto {
 }
 
 export interface ILoginUserDto {
-  email: string;
-  password: string;
+  code: string;
 }
 
 export interface ILoginResponse {
   token: string;
   user: {
     id: string;
-    name: string;
     role: string;
   };
+}
+
+export interface ICreateResponse {
+  email: string;
 }
