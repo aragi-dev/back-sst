@@ -1,6 +1,6 @@
 import Logger from "./logger";
 
-function LogUseCase(target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
+export function LogUseCase(target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
   descriptor.value = async function (...args: unknown[]) {
     Logger.info("🚍 [USECASE] Entering use case:", propertyKey, ...args);
@@ -14,5 +14,3 @@ function LogUseCase(target: unknown, propertyKey: string, descriptor: PropertyDe
     }
   };
 }
-
-export default LogUseCase;
