@@ -25,6 +25,7 @@ export default $config({
 
 		 const email = new sst.aws.Email("MyEmail", {
            sender: "tucorreo@gmail.com",
+			 dmarc: "v=DMARC1; p=quarantine; adkim=s; aspf=s;"
          });
 
 		api.route("GET /product", {
