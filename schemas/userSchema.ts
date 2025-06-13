@@ -9,6 +9,5 @@ export const createUserSchema = z.object({
 });
 
 export const loginUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  code: z.string().min(6).max(6),
 });
