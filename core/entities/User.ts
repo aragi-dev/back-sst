@@ -16,4 +16,7 @@ export class User extends BaseEntity {
 
   @Column({ name: "email", type: "varchar", length: 255, unique: true, nullable: false })
   email!: string;
+
+  @Column({ name: "mfa_secret", type: "text", nullable: false })
+  mfaSecret!: string
 }
