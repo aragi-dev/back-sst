@@ -11,6 +11,7 @@ export default $config({
 	},
 	async run() {
 		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
+		const corsOriginSecret = new sst.Secret("CORS_ORIGIN");
 
 		const qrBucket = new sst.aws.Bucket("QrBucket", {
 			cors: {
@@ -37,7 +38,18 @@ export default $config({
 		});
 
 		const api = new sst.aws.ApiGatewayV2("MyApi", {
-			cors: true,
+			cors: {
+				allowOrigins: [corsOriginSecret.value],
+				allowMethods: ["POST"],
+			},
+			domain: process.env.SST_STAGE === "production"
+				? {
+					name: "api.omatu.dev",
+					dns: sst.aws.dns({
+						zone: "Z057933120QKWKTXK2HIO"
+					})
+				}
+				: undefined,
 			transform: {
 				route: {
 					handler: (args, _opts) => {

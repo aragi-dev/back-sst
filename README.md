@@ -22,8 +22,26 @@ Las variables sensibles como la URL de la base de datos se gestionan usando los 
 
 Para establecer la URL de la base de datos utiliza:
 
+dev
 ```bash
 bun sst secret set NEON_DATABASE_URL "postgresql://usuario:contraseña@host:puerto/db?sslmode=require"
+```
+
+prod
+```bash
+bun sst secret set NEON_DATABASE_URL "postgresql://usuario:contraseña@host:puerto/db?sslmode=require" --stage production
+```
+
+para estableser los dominios permitidos:
+ 
+dev
+```bash
+bun sst secret set CORS_ORIGIN * 
+```
+
+prod
+```bash
+sst secret set CORS_ORIGIN https://example.com --stage production
 ```
 
 ## Instalación de dependencias

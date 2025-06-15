@@ -5,6 +5,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "CORS_ORIGIN": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MyApi": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
