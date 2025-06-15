@@ -5,7 +5,7 @@ import "./injector";
 import Logger from "@utils/loggers/logger";
 import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
-import { UserService } from "@docService/UserService";
+import { UserLogin } from "@docService/UserLogin";
 import { schema } from "./schema";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -20,13 +20,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     });
   }
   try {
-    const service = container.resolve(UserService);
+    const service = container.resolve(UserLogin);
     const result = await service.login(validate.data);
     return response(result);
   } catch (error) {
+    Logger.error(messages.error.INTERNAL_SERVER_ERROR, error);
     return response({
       statusCode: messages.statusCode.INTERNAL_SERVER_ERROR,
-      message: messages.error.SERVICE,
+      message: messages.error.INTERNAL_SERVER_ERROR,
       data: error,
     });
   }

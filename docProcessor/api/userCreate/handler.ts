@@ -9,8 +9,6 @@ import response from "@utils/adapters/responseHandler";
 import { UserCreate } from "@docService/UserCreate";
 import { AppDataSource } from "@utils/dbBase/DocProcessor";
 
-await AppDataSource.initialize();
-
 export const handler: APIGatewayProxyHandler = async (event) => {
   let parsedBody = JSON.parse(event.body || "{}");
   const validate = schema.safeParse(parsedBody);
@@ -22,6 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       error: validate.error.errors,
     });
   }
+  await AppDataSource.initialize();
   try {
     const service = container.resolve(UserCreate);
     const result = await service.create(validate.data);

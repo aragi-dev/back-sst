@@ -51,8 +51,8 @@ export default $config({
 		const email = sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev");
 
 		api.route("POST /user", {
-			name: "createUser",
-			handler: "docProcessor/api/createUser/handler.handler",
+			name: "userCreate",
+			handler: "docProcessor/api/userCreate/handler.handler",
 			link: [email, qrBucket],
 			environment: {
 				NEON_DATABASE_URL: dbSecret.value,
@@ -69,8 +69,8 @@ export default $config({
 		});
 
 		api.route("POST /login", {
-			name: "loginUser",
-			handler: "docProcessor/api/loginUser/handler.handler",
+			name: "userLogin",
+			handler: "docProcessor/api/userLogin/handler.handler",
 			environment: {
 				NEON_DATABASE_URL: dbSecret.value,
 			},

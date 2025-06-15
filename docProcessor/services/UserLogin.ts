@@ -11,9 +11,10 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret";
 import { LogUseCase } from "@utils/loggers/useCaseDecorator";
 import { authenticator } from "otplib";
 import type { IUserRepository } from "@docInterfaceRepository/IUserRepository";
+import Logger from "@utils/loggers/logger";
 
 @injectable()
-export class UserService {
+export class UserLogin {
   constructor(
     @inject("IUserRepository")
     private readonly userRepository: IUserRepository
@@ -26,21 +27,14 @@ export class UserService {
         { email: data.email }
       );
 
-      if (!user) {
+      if (!user || !user.status || !user.mfaSecret) {
         return {
           statusCode: messages.statusCode.NOT_FOUND,
-          message: "User not found",
+          message: messages.error.NOT_AVAILABLE,
           data: {} as LoginResponseDTO,
         };
       }
 
-      if (!user.status || user.mfaSecret) {
-        return {
-          statusCode: messages.statusCode.UNAUTHORIZED,
-          message: messages.error.NOT_AVAILABLE,
-          data: undefined as unknown as LoginResponseDTO,
-        };
-      }
 
       const isValid = authenticator.check(data.code, user.mfaSecret);
 
@@ -48,7 +42,7 @@ export class UserService {
         return {
           statusCode: messages.statusCode.UNAUTHORIZED,
           message: messages.error.INVALID_PARAMETERS,
-          data: undefined as unknown as LoginResponseDTO,
+          data: {} as LoginResponseDTO,
         };
       }
       const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
@@ -66,7 +60,12 @@ export class UserService {
         },
       };
     } catch (error) {
-      throw new Error(String(error));
+      Logger.error(messages.error.SERVICE, error);
+      return {
+        statusCode: messages.statusCode.INTERNAL_SERVER_ERROR,
+        message: messages.error.SERVICE,
+        data: {} as LoginResponseDTO,
+      };
     }
   }
 }
