@@ -28,25 +28,37 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "@services/*": [
-        "services/*"
+      "@docEntity/*": [
+        "core/docProcessor/entities/*"
+      ],
+      "@docInterfaceRepository/*": [
+        "core/docProcessor/interfaces/*"
+      ],
+      "@docRepository/*": [
+        "core/docProcessor/repositories/*"
       ],
       "@utils/*": [
         "utils/*"
       ],
-      "@core/*": [
-        "core/*"
+      "@docApi/*": [
+        "docProcessor/api/*"
       ],
-      "@schemas/*": [
-        "schemas/*"
+      "@docInterface/*": [
+        "docProcessor/interfaces/*"
       ],
-      "@interfaces/*": [
-        "interfaces/*"
-      ]
+      "@docService/*": [
+        "docProcessor/services/*"
+      ],
+      "@dbBase/*": [
+        "utils/dbBase/*"
+      ],
     }
   },
   "include": [
-    "api",
-    "services"
+    "core",
+    "docProcessor",
+    "sst-env.d.ts",
+    "sst.config.ts",
+    "utils",
   ]
 }

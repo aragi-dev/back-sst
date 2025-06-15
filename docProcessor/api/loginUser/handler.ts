@@ -1,16 +1,16 @@
 import "reflect-metadata";
 import type { APIGatewayProxyHandler } from "aws-lambda";
 import { container } from "tsyringe";
-import "@utils/injector";
-import { loginUserSchema } from "@schemas/userSchema";
+import "./injector";
 import Logger from "@utils/loggers/logger";
 import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
-import { UserService } from "@services/UserService";
+import { UserService } from "@docService/UserService";
+import { schema } from "./schema";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   let parsedBody = JSON.parse(event.body || "{}");
-  const validate = loginUserSchema.safeParse(parsedBody);
+  const validate = schema.safeParse(parsedBody);
   if (!validate.success) {
     Logger.error(messages.error.VALIDATION_ERROR, validate.error);
     return response({

@@ -24,5 +24,8 @@
     "tsyringe": "4.10.0",
     "typeorm": "0.3.24",
     "zod": "3.25.32"
+  },
+  "scripts": {
+    "dev": "sst dev"
   }
 }

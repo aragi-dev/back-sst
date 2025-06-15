@@ -8,6 +8,8 @@ export const messages = {
     INVALID_INPUT: "Invalid input provided",
     INVALID_PARAMETERS: "Invalid parameters provided",
     NOT_AVAILABLE: "Resource not available",
+    INTERNAL_SERVER_ERROR: "Internal server error occurred",
+    EMAIL: "Failed to send email.",
   },
   success: {
     CREATED: "Created successfully",

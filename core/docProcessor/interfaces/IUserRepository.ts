@@ -1,4 +1,4 @@
-import type { User } from "@core/entities/User";
+import type { User } from "@docEntity/User";
 import type { EntityManager } from "typeorm";
 
 export interface IUserRepository {

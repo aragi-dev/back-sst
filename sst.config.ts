@@ -10,6 +10,7 @@ export default $config({
 		};
 	},
 	async run() {
+		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
 
 		const api = new sst.aws.ApiGatewayV2("MyApi", {
 			cors: true,
@@ -17,36 +18,31 @@ export default $config({
 				route: {
 					handler: (args, _opts) => {
 						args.memory ??= "2048 MB";
-						args.timeout ??= "10 seconds";
+						args.timeout ??= "5 seconds";
 					},
 				},
 			},
 		});
 
-		 const email = new sst.aws.Email("MyEmail", {
-           sender: "tucorreo@gmail.com",
-			 dmarc: "v=DMARC1; p=quarantine; adkim=s; aspf=s;"
-         });
-
-		api.route("GET /product", {
-			name: "getProduct",
-			handler: "api/getProduct.handler",
-		});
-
-		api.route("POST /product", {
-			name: "createProduct",
-			handler: "api/createProduct.handler",
-		});
+		const email = $app.stage === "frank"
+			? sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev")
+			: sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev");
 
 		api.route("POST /user", {
 			name: "createUser",
-			handler: "api/createUser.handler",
+			handler: "docProcessor/api/createUser/handler.handler",
 			link: [email],
+			environment: {
+				NEON_DATABASE_URL: dbSecret.value,
+			},
 		});
 
 		api.route("POST /login", {
 			name: "loginUser",
-			handler: "api/loginUser.handler",
+			handler: "docProcessor/api/loginUser/handler.handler",
+			environment: {
+				NEON_DATABASE_URL: dbSecret.value,
+			},
 		});
 	},
 });

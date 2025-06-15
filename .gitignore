@@ -14,8 +14,8 @@ coverage
 logs
 _.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-bun.lock
-bun.lockb
+*.lock
+*.lockb
 
 # dotenv environment variable files
 .env
@@ -37,6 +37,3 @@ bun.lockb
 
 # sst
 .sst
-/generated/*
-
-/generated/prisma

@@ -1,17 +1,16 @@
 import type { Role } from "@utils/enums/RoleEnum";
 
-export interface ICreateUserDto {
-  name: string;
+export interface CreateUserDTO {
   email: string;
-  password: string;
   role: Role;
 }
 
-export interface ILoginUserDto {
+export interface LoginUserDTO {
+  email?: string;
   code: string;
 }
 
-export interface ILoginResponse {
+export interface LoginResponseDTO {
   token: string;
   user: {
     id: string;
@@ -19,6 +18,7 @@ export interface ILoginResponse {
   };
 }
 
-export interface ICreateResponse {
+export interface CreateResponseDTO {
   email: string;
+  send: boolean;
 }

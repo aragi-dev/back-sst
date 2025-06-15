@@ -1,6 +1,6 @@
-import { connectDB } from "@utils/typeorm";
-import { User } from "@core/entities/User";
-import type { IUserRepository } from "@core/IRepositories/IUserRepository";
+import { connectDB } from "@dbBase/DocProcessor";
+import { User } from "@docEntity/User";
+import type { IUserRepository } from "@docInterfaceRepository/IUserRepository";
 import type { EntityManager } from "typeorm";
 import { LogRepository } from "@utils/loggers/repositoryDecorator";
 
