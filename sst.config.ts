@@ -48,13 +48,20 @@ export default $config({
 			},
 		});
 
-		const email = $app.stage === "frank"
-			? sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev")
-			: sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev");
+		const email = sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev");
 
 		api.route("POST /user", {
 			name: "createUser",
 			handler: "docProcessor/api/createUser/handler.handler",
+			link: [email, qrBucket],
+			environment: {
+				NEON_DATABASE_URL: dbSecret.value,
+			},
+		});
+
+		api.route("POST /email", {
+			name: "sendEmail",
+			handler: "docProcessor/api/sendEmail/handler.handler",
 			link: [email, qrBucket],
 			environment: {
 				NEON_DATABASE_URL: dbSecret.value,

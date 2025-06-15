@@ -4,27 +4,18 @@ import { messages } from "@utils/messages";
 import type { UseCase } from "@utils/adapters/UseCase";
 import { LogUseCase } from "@utils/loggers/useCaseDecorator";
 import { authenticator } from "otplib";
-import qrcode from "qrcode";
-import { sendEmail } from "@docService/SendEmail";
 import type { IUserRepository } from "@docInterfaceRepository/IUserRepository";
 import Logger from "@utils/loggers/logger";
 import { AppDataSource } from "@dbBase/DocProcessor";
-import { uploadQrImage } from "@utils/generateQR";
-
-function extractSecret(otpauth: string): string | null {
-  try {
-    const url = new URL(otpauth);
-    return url.searchParams.get("secret");
-  } catch {
-    return null;
-  }
-}
+import type { SendMfaEmail } from "@docService/SendMfaEmail";
 
 @injectable()
 export class UserCreate {
   constructor(
     @inject("IUserRepository")
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    @inject("SendMfaEmail")
+    private readonly sendMfaEmail: SendMfaEmail
   ) { }
 
   @LogUseCase
@@ -34,16 +25,7 @@ export class UserCreate {
     await dataBase.startTransaction();
 
     try {
-      const existingUserPromise = this.userRepository.findByParams(
-        { email: data.email },
-        dataBase.manager
-      );
-
-      const mfaSecret = authenticator.generateSecret();
-      const otpauth = authenticator.keyuri(data.email, "comberter", mfaSecret);
-      const secret = extractSecret(otpauth);
-
-      const existingUser = await existingUserPromise;
+      const existingUser = await this.userRepository.findByParams({ email: data.email }, dataBase.manager);
 
       if (existingUser) {
         await dataBase.rollbackTransaction();
@@ -54,6 +36,7 @@ export class UserCreate {
         };
       }
 
+      const mfaSecret = authenticator.generateSecret();
       const user = await this.userRepository.create(
         {
           email: data.email,
@@ -63,27 +46,19 @@ export class UserCreate {
         },
         dataBase.manager
       );
+
       await dataBase.commitTransaction();
 
-      const qrCodeBuffer = await qrcode.toBuffer(otpauth, { type: 'png' });
-      const key = `mfa/${user.id}/${Date.now()}.png`;
-      const qrUrl = await uploadQrImage(qrCodeBuffer, key);
-
-      await sendEmail({
-        to: data.email,
-        subject: "Configura tu MFA",
-        htmlBody: `
-          <h1>Tu MFA está listo</h1>
-          <p>Escanea este código QR:</p>
-          <img src="${qrUrl}" />
-          <p>O ingresa este código manual: <strong>${secret ?? "Código no disponible"}</strong></p>
-        `,
+      const sendEmail = await this.sendMfaEmail.sendMfaEmail({
+        email: data.email,
+        mfaSecret,
+        userId: user.id,
       });
 
       return {
         statusCode: messages.statusCode.SUCCESS,
         message: messages.success.CREATED,
-        data: { email: data.email, send: true },
+        data: { email: data.email, send: sendEmail.data.send },
       };
     } catch (error) {
       await dataBase.rollbackTransaction();

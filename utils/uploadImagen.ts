@@ -4,20 +4,24 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client();
 
-export async function uploadQrImage(buffer: Buffer, key: string): Promise<string> {
+export async function uploadImageToS3(
+  buffer: Buffer,
+  key: string,
+  contentType = "image/png",
+  bucketName: string = Resource.QrBucket.name
+): Promise<string> {
   await s3.send(new PutObjectCommand({
-    Bucket: Resource.QrBucket.name,
+    Bucket: bucketName,
     Key: key,
     Body: buffer,
-    ContentType: "image/png",
+    ContentType: contentType,
   }));
 
   const command = new GetObjectCommand({
-    Bucket: Resource.QrBucket.name,
+    Bucket: bucketName,
     Key: key,
   });
 
   const url = await getSignedUrl(s3, command, { expiresIn: 60 * 15 });
-
   return url;
 }
