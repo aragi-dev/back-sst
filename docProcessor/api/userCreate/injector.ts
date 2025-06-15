@@ -5,7 +5,6 @@ import Logger from "@utils/loggers/logger";
 import type { IUserRepository } from "@docInterfaceRepository/IUserRepository";
 import { SendMfaEmail } from "@docService/SendMfaEmail";
 import { User } from "@docEntity/User";
-import { connectDB } from "@utils/dbBase/DocProcessor";
 
 container.register<IUserRepository>("IUserRepository", {
   useClass: UserRepository,
