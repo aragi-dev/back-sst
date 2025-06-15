@@ -8,18 +8,21 @@ import type { IUserRepository } from "@docInterfaceRepository/IUserRepository";
 import type { SendEmailDTO, SendEmailResponseDTO } from "@docInterface/SendEmailDto";
 import { messages } from "@utils/messages";
 import type { UseCase } from "@utils/adapters/UseCase";
+import type { DataSource } from "typeorm";
 
 @injectable()
 export class SendMfaEmail {
   constructor(
     @inject("IUserRepository")
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    @inject("DataSource")
+    private readonly dataSource: DataSource
   ) { }
 
   @LogUseCase
   async sendMfaEmail(data: SendEmailDTO): Promise<UseCase<SendEmailResponseDTO>> {
     if (!data.mfaSecret || !data.userId) {
-      const user = await this.userRepository.findByParams({ email: data.email });
+      const user = await this.userRepository.findByParams({ email: data.email }, this.dataSource.manager);
       if (!user) {
         return {
           statusCode: messages.statusCode.NOT_FOUND,

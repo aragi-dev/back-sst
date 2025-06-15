@@ -12,19 +12,23 @@ import { LogUseCase } from "@utils/loggers/useCaseDecorator";
 import { authenticator } from "otplib";
 import type { IUserRepository } from "@docInterfaceRepository/IUserRepository";
 import Logger from "@utils/loggers/logger";
+import type { DataSource } from "typeorm";
 
 @injectable()
 export class UserLogin {
   constructor(
     @inject("IUserRepository")
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    @inject("DataSource")
+    private readonly dataSource: DataSource
   ) { }
 
   @LogUseCase
   async login(data: LoginUserDTO): Promise<UseCase<LoginResponseDTO>> {
     try {
       const user = await this.userRepository.findByParams(
-        { email: data.email }
+        { email: data.email },
+        this.dataSource.manager
       );
 
       if (!user || !user.status || !user.mfaSecret) {

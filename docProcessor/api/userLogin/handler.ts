@@ -7,6 +7,8 @@ import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
 import { UserLogin } from "@docService/UserLogin";
 import { schema } from "./schema";
+import { connectDB } from "@dbBase/DocProcessor";
+import { entities } from "./injector";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   let parsedBody = JSON.parse(event.body || "{}");
@@ -18,6 +20,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       message: messages.error.VALIDATION_ERROR,
       error: validate.error.errors,
     });
+  }
+  const dataSource = await connectDB(entities);
+  if (!container.isRegistered("DataSource")) {
+    container.register("DataSource", { useValue: dataSource });
   }
   try {
     const service = container.resolve(UserLogin);

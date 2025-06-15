@@ -7,7 +7,8 @@ import Logger from "@utils/loggers/logger";
 import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
 import { SendMfaEmail } from "@docService/SendMfaEmail";
-import { AppDataSource } from "@utils/dbBase/DocProcessor";
+import { connectDB } from "@dbBase/DocProcessor";
+import { entities } from "./injector";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   let parsedBody = JSON.parse(event.body || "{}");
@@ -20,7 +21,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       error: validate.error.errors,
     });
   }
-  await AppDataSource.initialize();
+  const dataSource = await connectDB(entities);
+  if (!container.isRegistered("DataSource")) {
+    container.register("DataSource", { useValue: dataSource });
+  }
   try {
     const service = container.resolve(SendMfaEmail);
     const result = await service.sendMfaEmail(validate.data);
