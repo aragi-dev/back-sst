@@ -12,6 +12,30 @@ export default $config({
 	async run() {
 		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
 
+		const qrBucket = new sst.aws.Bucket("QrBucket", {
+			cors: {
+				allowOrigins: ["*"],
+				allowMethods: ["GET"],
+			},
+			versioning: false,
+			transform: {
+				bucket: {
+					lifecycleRules: [
+						{
+							id: "DeleteOldQRCodes",
+							expirations: [
+								{
+									days: 1,
+								},
+							],
+							prefix: "mfa/",
+							enabled: true,
+						},
+					],
+				},
+			},
+		});
+
 		const api = new sst.aws.ApiGatewayV2("MyApi", {
 			cors: true,
 			transform: {
@@ -31,7 +55,7 @@ export default $config({
 		api.route("POST /user", {
 			name: "createUser",
 			handler: "docProcessor/api/createUser/handler.handler",
-			link: [email],
+			link: [email, qrBucket],
 			environment: {
 				NEON_DATABASE_URL: dbSecret.value,
 			},
