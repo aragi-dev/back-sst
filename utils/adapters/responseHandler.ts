@@ -13,6 +13,9 @@ export default function response<T = unknown, U = unknown>({
 }: ApiResponse<T, U>) {
   return {
     statusCode,
-    body: JSON.stringify({ message, data, error }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message, data, error }, null, 2),
   };
 }
