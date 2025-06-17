@@ -39,7 +39,10 @@ export default $config({
 
 		const api = new sst.aws.ApiGatewayV2("MyApi", {
 			cors: {
-				allowOrigins: [corsOriginSecret.value],
+				allowOrigins: [
+					corsOriginSecret.value,
+					"http://localhost:5173"
+				],
 				allowMethods: ["POST"],
 			},
 			domain: process.env.SST_STAGE === "production"
