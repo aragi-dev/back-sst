@@ -4,19 +4,25 @@ export default $config({
 	app(input) {
 		return {
 			name: "back-sst",
-			removal: input?.stage === "production" ? "retain" : "remove",
-			protect: ["production"].includes(input?.stage),
+			removal: input?.stage === "prod" ? "retain" : "remove",
+			protect: ["prod"].includes(input?.stage),
 			home: "aws",
 		};
 	},
 	async run() {
+
+		const { CorsOrigins } = await import("@utils/enums/CorsOrigins");
+		const { Domain } = await import("@utils/enums/Domain");
+		const { Email } = await import("@utils/enums/Email");
+		const { Env } = await import("@utils/enums/Env");
+		const { HttpMethod } = await import("@utils/enums/HttpMethos");
+		const isProd = $app.stage === Env.PROD;
 		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
-		const corsOriginSecret = new sst.Secret("CORS_ORIGIN");
 
 		const qrBucket = new sst.aws.Bucket("QrBucket", {
 			cors: {
-				allowOrigins: ["*"],
-				allowMethods: ["GET"],
+				allowOrigins: [CorsOrigins.ALL],
+				allowMethods: [HttpMethod.GET],
 			},
 			versioning: false,
 			transform: {
@@ -37,20 +43,14 @@ export default $config({
 			},
 		});
 
-		const api = new sst.aws.ApiGatewayV2("MyApi", {
+		const api = new sst.aws.ApiGatewayV2("doc", {
 			cors: {
-				allowOrigins: [
-					corsOriginSecret.value,
-					"http://localhost:5173"
-				],
-				allowMethods: ["POST"],
+				allowOrigins: [isProd ? CorsOrigins.PROD : CorsOrigins.DEV],
+				allowMethods: [HttpMethod.POST],
 			},
-			domain: process.env.SST_STAGE === "production"
+			domain: $app.stage === Env.PROD
 				? {
-					name: "api.omatu.dev",
-					dns: sst.aws.dns({
-						zone: "Z057933120QKWKTXK2HIO"
-					})
+					nameId: Domain.PROD,
 				}
 				: undefined,
 			transform: {
@@ -63,10 +63,10 @@ export default $config({
 			},
 		});
 
-		const email = sst.aws.Email.get("MyEmail", "docprocessor@omatu.dev");
+		const email = sst.aws.Email.get("MyEmail", Email.FROM);
 
 		api.route("POST /user", {
-			name: "userCreate",
+			name: `${$app.stage}-user-create`,
 			handler: "docProcessor/api/userCreate/handler.handler",
 			link: [email, qrBucket],
 			environment: {
@@ -75,7 +75,7 @@ export default $config({
 		});
 
 		api.route("POST /email", {
-			name: "sendEmail",
+			name: `${$app.stage}-send-email`,
 			handler: "docProcessor/api/sendEmail/handler.handler",
 			link: [email, qrBucket],
 			environment: {
@@ -84,7 +84,7 @@ export default $config({
 		});
 
 		api.route("POST /login", {
-			name: "userLogin",
+			name: `${$app.stage}-user-login`,
 			handler: "docProcessor/api/userLogin/handler.handler",
 			environment: {
 				NEON_DATABASE_URL: dbSecret.value,

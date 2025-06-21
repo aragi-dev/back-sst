@@ -26,7 +26,8 @@
     "zod": "3.25.32"
   },
   "scripts": {
-    "dev": "sst dev",
-    "prod": "sst deploy --stage production"
+    "dev": "bun sst dev --stage dev",
+    "deploy:dev": "bun sst deploy --stage dev",
+    "deploy": "bun sst deploy --stage prod"
   }
 }

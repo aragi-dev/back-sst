@@ -5,14 +5,6 @@
 
 declare module "sst" {
   export interface Resource {
-    "CORS_ORIGIN": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "MyApi": {
-      "type": "sst.aws.ApiGatewayV2"
-      "url": string
-    }
     "MyEmail": {
       "configSet": string
       "sender": string
@@ -25,6 +17,10 @@ declare module "sst" {
     "QrBucket": {
       "name": string
       "type": "sst.aws.Bucket"
+    }
+    "doc": {
+      "type": "sst.aws.ApiGatewayV2"
+      "url": string
     }
   }
 }
