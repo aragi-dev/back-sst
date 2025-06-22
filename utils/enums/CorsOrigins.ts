@@ -1,5 +1,5 @@
 export enum CorsOrigins {
-  DEV = "https://localhost:3000",
-  PROD = "https://omatu.dev",
+  DEV = "http://localhost:5173",
+  PROD = "https://www.omatu.dev",
   ALL = "*",
 }
