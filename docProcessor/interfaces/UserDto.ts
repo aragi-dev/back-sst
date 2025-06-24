@@ -6,7 +6,7 @@ export interface CreateUserDTO {
 }
 
 export interface LoginUserDTO {
-  email?: string;
+  email: string;
   code: string;
 }
 

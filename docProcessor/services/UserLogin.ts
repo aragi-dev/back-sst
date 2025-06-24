@@ -40,7 +40,7 @@ export class UserLogin {
       }
 
 
-      const isValid = authenticator.check(data.code, user.mfaSecret);
+      const isValid = await authenticator.check(data.code, user.mfaSecret);
 
       if (!isValid) {
         return {

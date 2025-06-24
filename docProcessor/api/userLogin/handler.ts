@@ -1,7 +1,7 @@
 import "reflect-metadata";
+import "./injector";
 import type { APIGatewayProxyHandler } from "aws-lambda";
 import { container } from "tsyringe";
-import "./injector";
 import Logger from "@utils/loggers/logger";
 import { messages } from "@utils/messages";
 import response from "@utils/adapters/responseHandler";
