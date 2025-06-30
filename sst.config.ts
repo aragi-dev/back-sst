@@ -1,5 +1,12 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+import { apiRoutes } from "./docProcessor/api/index";
+import { authLambda } from "./auth/index";
+import { ResourceKey } from "./utils/enums/ResourceKey";
+import type { SendEmailLambdaProps } from "./docProcessor/api/sendEmail/index";
+import type { UserCreateLambdaProps } from "./docProcessor/api/userCreate/index";
+import type { UserLoginLambdaProps } from "./docProcessor/api/userLogin/index";
+
 export default $config({
 	app(input) {
 		return {
@@ -10,7 +17,6 @@ export default $config({
 		};
 	},
 	async run() {
-
 		const { CorsOrigins } = await import("@utils/enums/CorsOrigins");
 		const { Domain } = await import("@utils/enums/Domain");
 		const { Email } = await import("@utils/enums/Email");
@@ -19,7 +25,7 @@ export default $config({
 		const isProd = $app.stage === Env.PROD;
 		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
 		const jwtSecret = new sst.Secret("JWT_SECRET");
-
+		const email = sst.aws.Email.get("MyEmail", Email.FROM);
 		const qrBucket = new sst.aws.Bucket("QrBucket", {
 			cors: {
 				allowOrigins: [CorsOrigins.ALL],
@@ -43,7 +49,6 @@ export default $config({
 				},
 			},
 		});
-
 		const api = new sst.aws.ApiGatewayV2("doc", {
 			cors: {
 				allowOrigins: [isProd ? CorsOrigins.PROD : CorsOrigins.DEV],
@@ -64,41 +69,37 @@ export default $config({
 			},
 		});
 
-		const email = sst.aws.Email.get("MyEmail", Email.FROM);
 
-		api.route("POST /user", {
-			name: `${$app.stage}-user-create`,
-			handler: "docProcessor/api/userCreate/handler.handler",
-			link: [email, qrBucket],
-			environment: {
-				NEON_DATABASE_URL: dbSecret.value,
-			},
-		});
+		type Resources = {
+			[key in ResourceKey]: unknown;
+		};
+		const resources: Resources = {
+			[ResourceKey.dbSecret]: dbSecret,
+			[ResourceKey.email]: email,
+			[ResourceKey.qrBucket]: qrBucket,
+			[ResourceKey.jwtSecret]: jwtSecret,
+		};
 
-		api.route("POST /email", {
-			name: `${$app.stage}-send-email`,
-			handler: "docProcessor/api/sendEmail/handler.handler",
-			link: [email, qrBucket],
-			environment: {
-				NEON_DATABASE_URL: dbSecret.value,
-			},
-		});
+		function buildProps<T>(needs: string[], resources: Record<string, unknown>, stage: string): T {
+			const props: any = { stage };
+			for (const dep of needs) {
+				props[dep] = resources[dep];
+			}
+			return props as T;
+		}
 
-		api.route("POST /login", {
-			name: `${$app.stage}-user-login`,
-			handler: "docProcessor/api/userLogin/handler.handler",
-			environment: {
-				NEON_DATABASE_URL: dbSecret.value,
-				JWT_SECRET: jwtSecret.value,
-			},
-		});
+		for (const route of apiRoutes) {
+			const { method, path, lambdaFactory, needs } = route;
+			const lambdaProps = needs.reduce((acc, dep) => {
+				acc[dep] = resources[dep];
+				return acc;
+			}, { stage: $app.stage });
+			api.route(`${method} ${path}`, lambdaFactory(lambdaProps));
+		}
 
-		api.route("POST /auth", {
-			name: `${$app.stage}-auth`,
-			handler: "auth/handler.handler",
-			environment: {
-				JWT_SECRET: jwtSecret.value,
-			},
-		});
+		api.route("POST /auth", authLambda({
+			stage: $app.stage,
+			jwtSecret,
+		}));
 	},
 });
