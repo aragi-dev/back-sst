@@ -22,6 +22,6 @@ export async function uploadImageToS3(
     Key: key,
   });
 
-  const url = await getSignedUrl(s3, command, { expiresIn: 60 * 15 });
+  const url = await getSignedUrl(s3, command, { expiresIn: 60 * 24 });
   return url;
 }
