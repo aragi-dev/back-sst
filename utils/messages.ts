@@ -10,6 +10,10 @@ export const messages = {
     NOT_AVAILABLE: "Resource not available",
     INTERNAL_SERVER_ERROR: "Internal server error occurred",
     EMAIL: "Failed to send email.",
+    TOKEN_NOT_CONFIG: "JWT_SECRET not configured in the environment",
+    TOKEN_REQUIRED: "Token required",
+    TOKEN_INVALID: "Invalid token",
+    TOKEN_EXPIRED: "Token expired",
   },
   success: {
     CREATED: "Created successfully",

@@ -5,6 +5,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "JWT_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MyEmail": {
       "configSet": string
       "sender": string

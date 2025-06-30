@@ -18,6 +18,7 @@ export default $config({
 		const { HttpMethod } = await import("@utils/enums/HttpMethos");
 		const isProd = $app.stage === Env.PROD;
 		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
+		const jwtSecret = new sst.Secret("JWT_SECRET");
 
 		const qrBucket = new sst.aws.Bucket("QrBucket", {
 			cors: {
@@ -88,6 +89,15 @@ export default $config({
 			handler: "docProcessor/api/userLogin/handler.handler",
 			environment: {
 				NEON_DATABASE_URL: dbSecret.value,
+				JWT_SECRET: jwtSecret.value,
+			},
+		});
+
+		api.route("POST /auth", {
+			name: `${$app.stage}-auth`,
+			handler: "auth/handler.handler",
+			environment: {
+				JWT_SECRET: jwtSecret.value,
 			},
 		});
 	},
