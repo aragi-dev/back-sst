@@ -1,15 +1,15 @@
 export interface SendEmailLambdaProps {
   stage: string;
-  dbSecret: { value: string };
-  email: { value: string };
-  qrBucket: { value: string };
+  dbProcessor: { value: string };
+  emailSender: { value: string };
+  BucketImgQr: { value: string };
 }
 
-export const sendEmailLambda = ({ stage, dbSecret, email, qrBucket }: SendEmailLambdaProps) => ({
+export const sendEmailLambda = ({ stage, dbProcessor, emailSender, BucketImgQr }: SendEmailLambdaProps) => ({
   name: `${stage}-send-email`,
   handler: "docProcessor/api/sendEmail/handler.handler",
-  link: [email, qrBucket],
+  link: [emailSender, BucketImgQr],
   environment: {
-    NEON_DATABASE_URL: dbSecret.value,
+    NEON_DATABASE_URL: dbProcessor.value,
   },
 });
