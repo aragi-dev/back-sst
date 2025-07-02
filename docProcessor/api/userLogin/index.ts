@@ -1,14 +1,14 @@
 export interface UserLoginLambdaProps {
   stage: string;
-  dbSecret: { value: string };
-  jwtSecret: { value: string };
+  dbProcessor: { value: string };
+  preAuth: { value: string };
 }
 
-export const userLoginLambda = ({ stage, dbSecret, jwtSecret }: UserLoginLambdaProps) => ({
+export const userLoginLambda = ({ stage, dbProcessor, preAuth }: UserLoginLambdaProps) => ({
   name: `${stage}-user-login`,
   handler: "docProcessor/api/userLogin/handler.handler",
   environment: {
-    NEON_DATABASE_URL: dbSecret.value,
-    JWT_SECRET: jwtSecret.value,
+    NEON_DATABASE_URL: dbProcessor.value,
+    JWT_SECRET: preAuth.value,
   },
 });
