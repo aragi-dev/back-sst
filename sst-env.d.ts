@@ -9,7 +9,7 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "MyEmail": {
+    "EmailSender": {
       "configSet": string
       "sender": string
       "type": "sst.aws.Email"
@@ -18,7 +18,7 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "QrBucket": {
+    "BucketImgQr": {
       "name": string
       "type": "sst.aws.Bucket"
     }
