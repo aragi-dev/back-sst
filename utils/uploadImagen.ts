@@ -8,7 +8,7 @@ export async function uploadImageToS3(
   buffer: Buffer,
   key: string,
   contentType = "image/png",
-  bucketName: string = Resource.QrBucket.name
+  bucketName: string = Resource.BucketImgQr.name
 ): Promise<string> {
   await s3.send(new PutObjectCommand({
     Bucket: bucketName,
