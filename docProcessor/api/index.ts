@@ -1,35 +1,25 @@
-import { userCreateLambda } from "./userCreate/index";
-import type { UserCreateLambdaProps } from "./userCreate/index";
-import { sendEmailLambda } from "./sendEmail/index";
-import type { SendEmailLambdaProps } from "./sendEmail/index";
-import { userLoginLambda } from "./userLogin/index";
-import type { UserLoginLambdaProps } from "./userLogin/index";
-import { ResourceKey } from "@utils/enums/ResourceKey";
+import { userCreateLambda } from "./userCreate";
+import { sendEmailLambda } from "./sendEmail";
+import { userLoginLambda } from "./userLogin";
+import { Resource } from "@utils/enums/Resource";
 
-interface ApiRoute<T> {
-  method: string;
-  path: string;
-  lambdaFactory: (props: T) => any;
-  needs: ResourceKey[];
-}
-
-export const apiRoutes: ApiRoute<any>[] = [
+export const apiRoutes = [
   {
     method: "POST",
     path: "/user",
-    lambdaFactory: userCreateLambda,
-    needs: [ResourceKey.dbSecret, ResourceKey.email, ResourceKey.qrBucket],
-  } as ApiRoute<UserCreateLambdaProps>,
+    needs: [Resource.DB_PROCESSOR, Resource.EMAIL_SENDER, Resource.BUCKET_IMG_QR],
+    lambda: userCreateLambda,
+  },
   {
     method: "POST",
     path: "/email",
-    lambdaFactory: sendEmailLambda,
-    needs: [ResourceKey.dbSecret, ResourceKey.email, ResourceKey.qrBucket],
-  } as ApiRoute<SendEmailLambdaProps>,
+    needs: [Resource.DB_PROCESSOR, Resource.EMAIL_SENDER, Resource.BUCKET_IMG_QR],
+    lambda: sendEmailLambda,
+  },
   {
     method: "POST",
     path: "/login",
-    lambdaFactory: userLoginLambda,
-    needs: [ResourceKey.dbSecret, ResourceKey.jwtSecret],
-  } as ApiRoute<UserLoginLambdaProps>,
+    needs: [Resource.DB_PROCESSOR, Resource.PRE_AUTH],
+    lambda: userLoginLambda,
+  },
 ];
