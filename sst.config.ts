@@ -10,17 +10,23 @@ export default $config({
 		};
 	},
 	async run() {
+		const isProd = $app.stage === Env.PROD;
 
+		const { resolveResources } = await import("@utils/lib/resourceMap");
 		const { CorsOrigins } = await import("@utils/enums/CorsOrigins");
+		const { HttpMethod } = await import("@utils/enums/HttpMethos");
+		const { apiRoutes } = await import("./docProcessor/api/index");
+		const { Resource } = await import("@utils/enums/Resource");
 		const { Domain } = await import("@utils/enums/Domain");
 		const { Email } = await import("@utils/enums/Email");
+		const { authLambda } = await import("./auth/index");
 		const { Env } = await import("@utils/enums/Env");
-		const { HttpMethod } = await import("@utils/enums/HttpMethos");
-		const isProd = $app.stage === Env.PROD;
-		const dbSecret = new sst.Secret("NEON_DATABASE_URL");
-		const jwtSecret = new sst.Secret("JWT_SECRET");
 
-		const qrBucket = new sst.aws.Bucket("QrBucket", {
+		const dbProcessor = new sst.Secret("NEON_DATABASE_URL");
+		const preAuth = new sst.Secret("JWT_SECRET");
+
+		const emailSender = sst.aws.Email.get("EmailSender", Email.FROM);
+		const BucketImgQr = new sst.aws.Bucket("BucketImgQr", {
 			cors: {
 				allowOrigins: [CorsOrigins.ALL],
 				allowMethods: [HttpMethod.GET],
@@ -44,6 +50,13 @@ export default $config({
 			},
 		});
 
+		const resources = {
+			[Resource.DB_PROCESSOR]: dbProcessor,
+			[Resource.PRE_AUTH]: preAuth,
+			[Resource.EMAIL_SENDER]: emailSender,
+			[Resource.BUCKET_IMG_QR]: BucketImgQr,
+		};
+
 		const api = new sst.aws.ApiGatewayV2("doc", {
 			cors: {
 				allowOrigins: [isProd ? CorsOrigins.PROD : CorsOrigins.DEV],
@@ -64,41 +77,14 @@ export default $config({
 			},
 		});
 
-		const email = sst.aws.Email.get("MyEmail", Email.FROM);
+		for (const route of apiRoutes) {
+			const lambdaProps = resolveResources($app.stage, resources, route.needs);
+			api.route(`${route.method} ${route.path}`, route.lambda(lambdaProps));
+		}
 
-		api.route("POST /user", {
-			name: `${$app.stage}-user-create`,
-			handler: "docProcessor/api/userCreate/handler.handler",
-			link: [email, qrBucket],
-			environment: {
-				NEON_DATABASE_URL: dbSecret.value,
-			},
-		});
-
-		api.route("POST /email", {
-			name: `${$app.stage}-send-email`,
-			handler: "docProcessor/api/sendEmail/handler.handler",
-			link: [email, qrBucket],
-			environment: {
-				NEON_DATABASE_URL: dbSecret.value,
-			},
-		});
-
-		api.route("POST /login", {
-			name: `${$app.stage}-user-login`,
-			handler: "docProcessor/api/userLogin/handler.handler",
-			environment: {
-				NEON_DATABASE_URL: dbSecret.value,
-				JWT_SECRET: jwtSecret.value,
-			},
-		});
-
-		api.route("POST /auth", {
-			name: `${$app.stage}-auth`,
-			handler: "auth/handler.handler",
-			environment: {
-				JWT_SECRET: jwtSecret.value,
-			},
-		});
+		api.route("POST /auth", authLambda({
+			stage: $app.stage,
+			preAuth,
+		}));
 	},
 });
