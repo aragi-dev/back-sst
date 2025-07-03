@@ -81,9 +81,5 @@ export default $config({
 			api.route(`${route.method} ${route.path}`, route.lambda(lambdaProps));
 		}
 
-		api.route("POST /auth", authLambda({
-			stage: $app.stage,
-			preAuth,
-		}));
 	},
 });
