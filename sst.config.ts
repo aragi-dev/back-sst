@@ -51,7 +51,6 @@ export default $config({
 
 		const resources = {
 			[Resource.DB_PROCESSOR]: dbProcessor,
-			[Resource.PRE_AUTH]: preAuth,
 			[Resource.EMAIL_SENDER]: emailSender,
 			[Resource.BUCKET_IMG_QR]: BucketImgQr,
 		};
