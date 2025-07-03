@@ -10,6 +10,7 @@ export default $config({
 		};
 	},
 	async run() {
+		const { Env } = await import("@utils/enums/Env");
 		const isProd = $app.stage === Env.PROD;
 
 		const { resolveResources } = await import("@utils/lib/resourceMap");
@@ -20,10 +21,8 @@ export default $config({
 		const { Domain } = await import("@utils/enums/Domain");
 		const { Email } = await import("@utils/enums/Email");
 		const { authLambda } = await import("./auth/index");
-		const { Env } = await import("@utils/enums/Env");
 
 		const dbProcessor = new sst.Secret("NEON_DATABASE_URL");
-		const preAuth = new sst.Secret("JWT_SECRET");
 
 		const emailSender = sst.aws.Email.get("EmailSender", Email.FROM);
 		const BucketImgQr = new sst.aws.Bucket("BucketImgQr", {
@@ -52,7 +51,6 @@ export default $config({
 
 		const resources = {
 			[Resource.DB_PROCESSOR]: dbProcessor,
-			[Resource.PRE_AUTH]: preAuth,
 			[Resource.EMAIL_SENDER]: emailSender,
 			[Resource.BUCKET_IMG_QR]: BucketImgQr,
 		};
@@ -82,9 +80,5 @@ export default $config({
 			api.route(`${route.method} ${route.path}`, route.lambda(lambdaProps));
 		}
 
-		api.route("POST /auth", authLambda({
-			stage: $app.stage,
-			preAuth,
-		}));
 	},
 });

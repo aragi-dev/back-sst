@@ -19,7 +19,7 @@ export const apiRoutes = [
   {
     method: "POST",
     path: "/login",
-    needs: [Resource.DB_PROCESSOR, Resource.PRE_AUTH],
+    needs: [Resource.DB_PROCESSOR],
     lambda: userLoginLambda,
   },
 ];
