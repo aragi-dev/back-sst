@@ -10,6 +10,7 @@ export default $config({
 		};
 	},
 	async run() {
+		const { Env } = await import("@utils/enums/Env");
 		const isProd = $app.stage === Env.PROD;
 
 		const { resolveResources } = await import("@utils/lib/resourceMap");
@@ -20,10 +21,8 @@ export default $config({
 		const { Domain } = await import("@utils/enums/Domain");
 		const { Email } = await import("@utils/enums/Email");
 		const { authLambda } = await import("./auth/index");
-		const { Env } = await import("@utils/enums/Env");
 
 		const dbProcessor = new sst.Secret("NEON_DATABASE_URL");
-		const preAuth = new sst.Secret("JWT_SECRET");
 
 		const emailSender = sst.aws.Email.get("EmailSender", Email.FROM);
 		const BucketImgQr = new sst.aws.Bucket("BucketImgQr", {
