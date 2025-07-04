@@ -21,7 +21,7 @@ export async function sendEmail({
   try {
     await ses.send(
       new SendEmailCommand({
-        FromEmailAddress: Resource.MyEmail.sender,
+        FromEmailAddress: Resource.EmailSender.sender,
         Destination: { ToAddresses: [to] },
         Content: {
           Simple: {
