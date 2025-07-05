@@ -20,7 +20,6 @@ export default $config({
 		const { Resource } = await import("@utils/enums/Resource");
 		const { Domain } = await import("@utils/enums/Domain");
 		const { Email } = await import("@utils/enums/Email");
-		const { authLambda } = await import("./auth/index");
 
 		const dbProcessor = new sst.Secret("NEON_DATABASE_URL");
 
@@ -49,10 +48,19 @@ export default $config({
 			},
 		});
 
+		const mainTable = new sst.aws.Dynamo("MainTable", {
+			fields: {
+				PK: "string",
+				SK: "string",
+			},
+			primaryIndex: { hashKey: "PK", rangeKey: "SK" },
+		});
+
 		const resources = {
 			[Resource.DB_PROCESSOR]: dbProcessor,
 			[Resource.EMAIL_SENDER]: emailSender,
 			[Resource.BUCKET_IMG_QR]: BucketImgQr,
+			[Resource.MAIN_TABLE]: mainTable.name,
 		};
 
 		const api = new sst.aws.ApiGatewayV2("doc", {
