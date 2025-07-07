@@ -1,4 +1,4 @@
-import { GetItemCommand, PutItemCommand, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GetItemCommand, PutItemCommand, DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 import type { User } from "../entities/User";
 
 const client = new DynamoDBClient({});
@@ -43,5 +43,29 @@ export class UserRepository {
       Item: item,
     });
     await client.send(command);
+  }
+
+  async getByEmail(email: string): Promise<User | null> {
+    const command = new QueryCommand({
+      TableName: MAIN_TABLE,
+      IndexName: "GSI_Email",
+      KeyConditionExpression: "email = :email",
+      ExpressionAttributeValues: {
+        ":email": { S: email }
+      }
+    });
+    const { Item } = await client.send(command);
+    if (!Item) return null;
+    if (!Item.PK?.S || !Item.email?.S || !Item.name?.S || !Item.createdAt?.S) {
+      throw new Error("Invalid user item from DynamoDB");
+    }
+    return {
+      userId: Item.PK.S.replace("USER#", ""),
+      email: Item.email.S,
+      name: Item.name.S,
+      address: Item.address?.S,
+      createdAt: Item.createdAt.S,
+      updatedAt: Item.updatedAt?.S,
+    };
   }
 }
