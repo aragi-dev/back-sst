@@ -4,7 +4,7 @@ type ResourceTypeMap = {
   [Resource.DB_PROCESSOR]: { value: string };
   [Resource.EMAIL_SENDER]: { value: string };
   [Resource.BUCKET_IMG_QR]: { value: string };
-  [Resource.PRE_AUTH]: { value: string };
+  [Resource.MAIN_TABLE]: { value: string };
 };
 
 export type LambdaContextFromNeeds<T extends Resource[]> = {
